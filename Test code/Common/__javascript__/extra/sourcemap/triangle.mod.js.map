@@ -1,0 +1,11 @@
+{
+	"version": 3,
+	"file": "J:/Alexandre/\u00c9cole 2016+/Infographie/Devoirs/Devoir 1/common/__javascript__/triangle.mod.js",
+	"sources": [
+		"J:/Alexandre/\u00c9cole 2016+/Infographie/Devoirs/Devoir 1/common/triangle.py"
+	],
+	"sourcesContent": [
+		"# from org.transcrypt.stubs.browser import (\n#     __pragma__, document, window, WebGLUtils, vec2, alert, initShaders,\n#     flatten,\n# )\nfrom vector import Vector2D\n\n\ngl = None\npoints = None\n\n\ndef render():\n    global gl\n    gl.js_clear(gl.COLOR_BUFFER_BIT)\n    gl.drawArrays(gl.Lines, 0, 4)\n\n\ndef init():\n    canvas = document.getElementById(\"gl-canvas\")\n    global gl\n    gl = WebGLUtils.setupWebGL(canvas)\n    if not gl:\n        alert(\"WebGL isn't available\")\n\n    vertices = [\n        Vector2D(-1, -1).as_list(),\n        Vector2D(1,  1).as_list(),\n        Vector2D(1, -1).as_list(),\n        Vector2D(-1, 1).as_list(),\n    ]\n\n    gl.viewport(0, 0, canvas.width, canvas.height)\n    gl.clearColor(1.0, 1.0, 1.0, 1.0)\n\n    program = initShaders(gl, \"vertex-shader\", \"fragment-shader\")\n    gl.useProgram(program)\n\n    vPositionLoc = gl.getAttribLocation(program, \"vPosition\")\n\n    bufferId = gl.createBuffer()\n    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId)\n    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW)\n\n    gl.enableVertexAttribArray(vPositionLoc)\n\n    gl.vertexAttribPointer(vPositionLoc, 2, gl.FLOAT, False, 0, 0)\n\n    render()\n\n\nwindow.onload = init\n"
+	],
+	"mappings": "AAAA;AAAA;AAAA;AAIA;AAGA;AACA;AAGA;AAEA;AACA;AAAA;AAGA;AACA;AAEA;AACA;AACA;AAAA;AAMA;AAGA;AACA;AAEA;AACA;AAEA;AAEA;AACA;AACA;AAEA;AAEA;AAEA;AAAA;AAGA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA"
+}
