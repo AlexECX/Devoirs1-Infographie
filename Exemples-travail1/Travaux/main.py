@@ -15,15 +15,15 @@ def js_array(iterable):
     __pragma__('noopov')
 
 
-def make_square(size=.5):
+def make_square(size=.5, aspect=1):
     square = [
-        Vector2D(-size, size),
-        Vector2D(-size, -size),
-        Vector2D(size, -size),
+        Vector2D(-size, size*aspect),
+        Vector2D(-size, -size*aspect),
+        Vector2D(size, -size*aspect),
 
-        Vector2D(size, size),
-        # Vector2D(size, size),
-        # Vector2D(-size, -size),
+        Vector2D(-size, size*aspect),
+        Vector2D(size, size*aspect),
+        Vector2D(size, -size*aspect),
     ]
     return square
 
@@ -114,8 +114,7 @@ def test_func(sq):
 
     return new_shape
 
-
-def divide_square(sq, count):
+def _divide_right_triangle(sq, count):
     global points
     if (count is 0):
         sq = [js_array(vec) for vec in sq]
@@ -123,31 +122,78 @@ def divide_square(sq, count):
         vertices = points
         program = select_shaders(gl, "vertex-shader", "fragment-shader2")
         render(gl, program, gl.TRIANGLES, vertices)
-
     else:
         ab = mix(sq[0], sq[1], 1/3)
         ac = mix(sq[0], sq[2], 1/3)
-        ad = mix(sq[0], sq[3], 1/3)
-        ba = mix(sq[1], sq[0], 1/3)
         bc = mix(sq[1], sq[2], 1/3)
-        bd = mix(sq[1], sq[3], 1/3)
-        ca = mix(sq[2], sq[0], 1/3)
-        cb = mix(sq[2], sq[1], 1/3)
-        cd = mix(sq[2], sq[3], 1/3)
-        da = mix(sq[3], sq[0], 1/3)
-        db = mix(sq[3], sq[1], 1/3)
-        dc = mix(sq[3], sq[2], 1/3)
 
+    
         count -= 1
 
-        divide_square((sq[0], ab, ad, ac,), count)
-        #divide_square((ab, ba, ac, bd), count)
-        divide_square((sq[1], ba, bc, bd,), count)
-        #divide_square((bc, cb, bd, ca,), count)
-        divide_square((sq[2], cd, cb, ca, ), count)
-        #divide_square((cd, dc, ca, db), count)
-        divide_square((sq[3], dc, da, db), count)
-        #divide_square((da, ad, db, ac), count)
+        _divide_right_triangle((sq[2], ac, bc,), count)
+        _divide_right_triangle((sq[0], ab, ac,), count)
+        _divide_right_triangle((sq[1], bc, ab,), count)
+
+def divide_square(sq, count):
+
+    ab = mix(sq[0], sq[1], 1/3)
+    ac = mix(sq[0], sq[2], 1/3)
+    ad = mix(sq[0], [0,0], 1/3)
+    ba = mix(sq[1], sq[0], 1/3)
+    bc = mix(sq[1], sq[2], 1/3)
+    bd = mix(sq[1], [0,0], 1/3)
+    ca = mix(sq[2], sq[0], 1/3)
+    cb = mix(sq[2], sq[1], 1/3)
+    cd = mix(sq[2], [0,0], 1/3)
+    da = mix([0,0], sq[0], 1/3)
+    db = mix([0,0], sq[1], 1/3)
+    dc = mix([0,0], sq[2], 1/3)
+
+    func_count = count
+    _divide_right_triangle((sq[0], ab, ad,), count)
+    #_divide_right_triangle((ab, ba, ac, bd), count)
+    _divide_right_triangle((sq[1], ba, bc,), count)
+    #_divide_right_triangle((bc, cb, bd, ca,), count)
+    _divide_right_triangle((sq[2], cd, cb,), count)
+    #_divide_right_triangle((cd, dc, ca, db), count)
+    _divide_right_triangle((sq[3], dc, da,), count)
+    #_divide_right_triangle((da, ad, db, ac), count)
+
+    divide_square(sq[:3], count)
+       
+
+    global points
+    # if (count is 0):
+    #     sq = [js_array(vec) for vec in sq]
+    #     points.push(*sq[:3])
+    #     vertices = points
+    #     program = select_shaders(gl, "vertex-shader", "fragment-shader2")
+    #     render(gl, program, gl.TRIANGLES, vertices)
+
+    # else:
+        # ab = mix(sq[0], sq[1], 1/3)
+        # ac = mix(sq[0], sq[2], 1/3)
+        # ad = mix(sq[0], sq[3], 1/3)
+        # ba = mix(sq[1], sq[0], 1/3)
+        # bc = mix(sq[1], sq[2], 1/3)
+        # bd = mix(sq[1], sq[3], 1/3)
+        # ca = mix(sq[2], sq[0], 1/3)
+        # cb = mix(sq[2], sq[1], 1/3)
+        # cd = mix(sq[2], sq[3], 1/3)
+        # da = mix(sq[3], sq[0], 1/3)
+        # db = mix(sq[3], sq[1], 1/3)
+        # dc = mix(sq[3], sq[2], 1/3)
+
+        # count -= 1
+
+        # divide_square((sq[0], ab, ad, ac,), count)
+        # #divide_square((ab, ba, ac, bd), count)
+        # divide_square((sq[1], ba, bc, bd,), count)
+        # #divide_square((bc, cb, bd, ca,), count)
+        # divide_square((sq[2], cd, cb, ca, ), count)
+        # #divide_square((cd, dc, ca, db), count)
+        # divide_square((sq[3], dc, da, db), count)
+        # #divide_square((da, ad, db, ac), count)
 
 # def divide_square(sq, count):
 #     global gl
