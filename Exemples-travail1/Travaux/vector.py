@@ -9,6 +9,17 @@ def pack_unpack_compat(args, compare):
         return args
 
 
+def mix(u, v, s ):
+    __pragma__('js', '{}', """var t = typeof s""")
+    if not t is "number":
+        raise TypeError("mix: the last paramter " + str(s) + " must be a number")
+    
+    if ( len(u) != len(v) ):
+        raise TypeError("vector dimension mismatch")
+
+    return u * [1-s for i in u] + v * [s for i in v]
+
+
 class Vector:
 
     coord = []

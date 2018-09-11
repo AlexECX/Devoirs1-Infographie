@@ -1,5 +1,6 @@
 from matrice import Matrix
 from vector import Vector2D
+import vector
 
 
 gl = None
@@ -18,12 +19,12 @@ def js_array(iterable):
 def make_square(size=.5):
     square = [
         Vector2D(-size, size),
-        Vector2D(-size, -size),
         Vector2D(size, -size),
+        Vector2D(-size, -size),
 
         Vector2D(size, size),
-        # Vector2D(size, size),
-        # Vector2D(-size, -size),
+        Vector2D(-size, size),
+        Vector2D(size, -size),
     ]
     return square
 
@@ -115,55 +116,97 @@ def test_func(sq):
     return new_shape
 
 
-def divide_square(sq, count):
+def divide_square(sq, base_count):
     global points
+    count = base_count
     if (count is 0):
-        sq = [js_array(vec) for vec in sq]
-        points.push(*[sq[0], sq[1], sq[2]])
+        tri = [js_array(vec) for vec in sq]
+        points.push(*tri[:3])
         vertices = points
         program = select_shaders(gl, "vertex-shader", "fragment-shader2")
         render(gl, program, gl.TRIANGLES, vertices)
 
-        points.push(*[sq[1], sq[2], sq[3]])
-        vertices = points
-        program = select_shaders(gl, "vertex-shader", "fragment-shader2")
-        render(gl, program, gl.TRIANGLES, vertices)
+        # points.push(*[sq[1], sq[2], sq[3]])
+        # vertices = points
+        # program = select_shaders(gl, "vertex-shader", "fragment-shader2")
+        # render(gl, program, gl.TRIANGLES, vertices)
 
-        points.push(*[sq[2], sq[3], sq[0]])
-        vertices = points
-        program = select_shaders(gl, "vertex-shader", "fragment-shader2")
-        render(gl, program, gl.TRIANGLES, vertices)
+        # points.push(*[sq[2], sq[3], sq[0]])
+        # vertices = points
+        # program = select_shaders(gl, "vertex-shader", "fragment-shader2")
+        # render(gl, program, gl.TRIANGLES, vertices)
 
-        points.push(*[sq[3], sq[0], sq[1]])
-        vertices = points
-        program = select_shaders(gl, "vertex-shader", "fragment-shader2")
-        render(gl, program, gl.TRIANGLES, vertices)
+        # points.push(*[sq[3], sq[0], sq[1]])
+        # vertices = points
+        # program = select_shaders(gl, "vertex-shader", "fragment-shader2")
+        # render(gl, program, gl.TRIANGLES, vertices)
 
         
     else:
-        ab = mix(sq[0], sq[1], 1/3)
-        ac = mix(sq[0], sq[2], 1/3)
-        ad = mix(sq[0], sq[3], 1/3)
-        ba = mix(sq[1], sq[0], 1/3)
-        bc = mix(sq[1], sq[2], 1/3)
-        bd = mix(sq[1], sq[3], 1/3)
-        ca = mix(sq[2], sq[0], 1/3)
-        cb = mix(sq[2], sq[1], 1/3)
-        cd = mix(sq[2], sq[3], 1/3)
-        da = mix(sq[3], sq[0], 1/3)
-        db = mix(sq[3], sq[1], 1/3)
-        dc = mix(sq[3], sq[2], 1/3)
+        ab = vector.mix(sq[0], sq[1], 1/3)
+        ac = vector.mix(sq[0], sq[2], 1/3)
+        #ad = mix(sq[0], sq[3], 1/3)
+        ba = vector.mix(sq[1], sq[0], 1/3)
+        bc = vector.mix(sq[1], sq[2], 1/3)
+        #bd = mix(sq[1], sq[3], 1/3)
+        ca = vector.mix(sq[2], sq[0], 1/3)
+        cb = vector.mix(sq[2], sq[1], 1/3)
+        #cd = mix(sq[2], sq[3], 1/3)
+        #da = mix(sq[3], sq[0], 1/3)
+        #db = mix(sq[3], sq[1], 1/3)
+        #dc = mix(sq[3], sq[2], 1/3)
 
         count -= 1
 
-        divide_square((sq[0], ab, ad, ac,), count)
-        divide_square((ab, ba, ac, bd), count)
-        divide_square((sq[1], ba, bc, bd,), count)
-        divide_square((bc, cb, bd, ca,), count)
-        divide_square((sq[2], cd, cb, ca, ), count)
-        divide_square((cd, dc, ca, db), count)
-        divide_square((sq[3], dc, da, db), count)
-        divide_square((da, ad, db, ac), count)
+        triangles = []
+        
+        triangles.append([
+            sq[0],
+            ab,
+            ac,
+        ])
+        
+        shift = Vector2D(1,-1)
+        __pragma__('opov')
+        l = [
+            sq[0] *= shift,
+            ab *= shift,
+            ac *= shift
+            ]
+        __pragma__('noopov')
+        triangles.append(l)
+
+        shift = Vector2D(-1,1)
+        __pragma__('opov')
+        l = [
+            sq[0] *= shift,
+            ab *= shift,
+            ac *= shift
+            ]
+        __pragma__('noopov')
+        triangles.append(l)
+
+        shift = Vector2D(1,-1)
+        __pragma__('opov')
+        l = [
+            sq[0] *= shift,
+            ab *= shift,
+            ac *= shift
+            ]
+        __pragma__('noopov')
+        triangles.append(l)
+        
+        for triangle in triangles:
+            divide_square(triangle, count)
+        # divide_square((corner, ab, ac,), count)
+        # divide_square((corner, ba, bc,), count)
+        # divide_square((sq[2], cb, ca, ), count)
+        # divide_square((sq[3], dc, da, db), count)
+
+        # divide_square((ab, ba, ac, bd), count)
+        # divide_square((bc, cb, bd, ca,), count)
+        # divide_square((cd, dc, ca, db), count)
+        # divide_square((da, ad, db, ac), count)
 
 # def divide_square(sq, count):
 #     global gl
@@ -236,7 +279,7 @@ def main_draw():
     #shape = __add__(shape, shape2)
     #shape = shift_shape(shape, Vector2D(-.4, 0))
     #shape2 = test_func(shape)
-    shape = [js_array(vec) for vec in shape]
+    #shape = [js_array(vec) for vec in shape]
     shape2 = [js_array(vec) for vec in shape2]
 
     # vertices = [js_array(vec) for vec in shape]
@@ -248,7 +291,9 @@ def main_draw():
 
     # divide_triangle(shape[:3], 2)
     # divide_triangle(shape[3:], 2)
-    divide_square(shape, 2)
+    divide_square(shape[:3], 1)
+    #divide_square(shape[3:], 1)
+
     #divide_square(shape2, 1)
     # vertices = points
     vertices = points
