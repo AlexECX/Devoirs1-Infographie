@@ -1,13 +1,26 @@
 from matrice import Matrix
-from vector import Vector2D
+from vector import Vector2D, Vector3D
 import vector
 
 
 gl = None
 program = None
-__pragma__('js', '{}', """
+
+__pragma__('js','{}',"""
 var points = []
 """)
+ 
+
+BaseColors = [
+    vec4( 0.0, 0.0, 0.0, 1.0 ),  # black
+    vec4( 1.0, 0.0, 0.0, 1.0 ),  # red
+    vec4( 1.0, 1.0, 0.0, 1.0 ),  # yellow
+    vec4( 0.0, 1.0, 0.0, 1.0 ),  # green
+    vec4( 0.0, 0.0, 1.0, 1.0 ),  # blue
+    vec4( 1.0, 0.0, 1.0, 1.0 ),  # magenta
+    vec4( 0.0, 1.0, 1.0, 1.0 ),  # cyan
+    vec4( 1.0, 1.0, 1.0, 1.0 ),  # white
+]
 
 
 def js_array(iterable):
@@ -18,15 +31,36 @@ def js_array(iterable):
 
 def make_square(size=.5):
     square = [
-        Vector2D(-size, size),
-        Vector2D(size, -size),
-        Vector2D(-size, -size),
-
-        Vector2D(size, size),
-        Vector2D(-size, size),
-        Vector2D(size, -size),
+        Vector3D(-size, -size, 0),
+        Vector3D(size, -size, 0),
+        Vector3D(size, size, 0),
+        Vector3D(-size, size, 0),
     ]
     return square
+
+def make_cube(size=.5, z=0):
+    cube = [
+        Vector3D(-.5, .5, .5),
+        Vector3D(-.5, -.5, .5),
+        Vector3D(0, -.2, -.5),
+        Vector3D(0, .8, -.5),
+
+        Vector3D(0, .8, -.5),
+        Vector3D(0, -.2, -.5),
+        Vector3D(.5, -.5, .5),
+        Vector3D(.5, .5, .5),
+
+        Vector3D(-.5, .5, .5),
+        Vector3D(-.5, -.5, .5),
+        Vector3D(0, -.8, .5),
+        Vector3D(0, .2, .5),
+
+        Vector3D(0, .2, .5),
+        Vector3D(0, -.8, .5),
+        Vector3D(.5, -.5, .5),
+        Vector3D(.5, .5, .5),
+    ]
+    return cube
 
 
 def make_triangle(size=.5):
@@ -52,192 +86,65 @@ def shift_shape(shape, coord):
     return shape
 
 
-def render(gl, program, mode, vertices):
-
-    vPositionLoc = gl.getAttribLocation(program, "vPosition")
-
-    bufferId = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId)
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW)
-
-    gl.enableVertexAttribArray(vPositionLoc)
-
-    gl.vertexAttribPointer(vPositionLoc, 2, gl.FLOAT, False, 0, 0)
-
-    gl.drawArrays(mode, 0, len(vertices))
-
-
-def clear_canvas(gl):
-    gl.js_clear(gl.COLOR_BUFFER_BIT)
-
-
-def select_shaders(gl, *args):
-    program = initShaders(gl, *args)
-    gl.useProgram(program)
-    return program
-
-
-def init_webgl_inst():
-    canvas = document.getElementById("gl-canvas")
-    gl = WebGLUtils.setupWebGL(canvas)
-    if not gl:
-        alert("WebGL isn't available")
-
-    gl.viewport(0, 0, canvas.width, canvas.height)
-    gl.clearColor(1.0, 1.0, 1.0, 1.0)
-
-    return gl
-
-    # p
-    # rogram = initShaders(gl, "vertex-shader", "fragment-shader")
-    # gl.useProgram(program)
-
-
-def test_func(sq):
-    ab = mix(sq[0], sq[1], .5)
-    ac = mix(sq[0], sq[2], .5)
-    ad = mix(sq[0], sq[3], .5)
-    bc = mix(sq[1], sq[2], .5)
-    bd = mix(sq[1], sq[3], .5)
-    cd = mix(sq[2], sq[3], .5)
-
-    aab = mix(sq[0], ab, .5)
-    aac = mix(sq[0], ac, .5)
-    aad = mix(sq[0], ad, .5)
-    bbc = mix(sq[1], bc, .5)
-    bab = mix(sq[1], ab, .5)
-    bbd = mix(sq[1], bd, .5)
-
-    new_shape = [
-        sq[0], aab, aac, aad,
-        sq[1], bab, bbc, bbd
-    ]
-
-    return new_shape
-
-
-def divide_square(sq, base_count):
+def divide_square(sq, count):
     global points
-    count = base_count
     if (count is 0):
         tri = [js_array(vec) for vec in sq]
-        points.push(*tri[:3])
-        vertices = points
-        program = select_shaders(gl, "vertex-shader", "fragment-shader2")
-        render(gl, program, gl.TRIANGLES, vertices)
+        points.push(*tri[0:3])
+        points.push(*tri[1:4])
+        points.push(*[tri[2], tri[3], tri[0],])
 
-        # points.push(*[sq[1], sq[2], sq[3]])
         # vertices = points
         # program = select_shaders(gl, "vertex-shader", "fragment-shader2")
         # render(gl, program, gl.TRIANGLES, vertices)
 
-        # points.push(*[sq[2], sq[3], sq[0]])
-        # vertices = points
-        # program = select_shaders(gl, "vertex-shader", "fragment-shader2")
-        # render(gl, program, gl.TRIANGLES, vertices)
-
-        # points.push(*[sq[3], sq[0], sq[1]])
-        # vertices = points
-        # program = select_shaders(gl, "vertex-shader", "fragment-shader2")
-        # render(gl, program, gl.TRIANGLES, vertices)
-
-        
     else:
         ab = vector.mix(sq[0], sq[1], 1/3)
         ac = vector.mix(sq[0], sq[2], 1/3)
-        #ad = mix(sq[0], sq[3], 1/3)
+        ad = vector.mix(sq[0], sq[3], 1/3)
         ba = vector.mix(sq[1], sq[0], 1/3)
         bc = vector.mix(sq[1], sq[2], 1/3)
-        #bd = mix(sq[1], sq[3], 1/3)
+        bd = vector.mix(sq[1], sq[3], 1/3)
         ca = vector.mix(sq[2], sq[0], 1/3)
         cb = vector.mix(sq[2], sq[1], 1/3)
-        #cd = mix(sq[2], sq[3], 1/3)
-        #da = mix(sq[3], sq[0], 1/3)
-        #db = mix(sq[3], sq[1], 1/3)
-        #dc = mix(sq[3], sq[2], 1/3)
+        cd = vector.mix(sq[2], sq[3], 1/3)
+        da = vector.mix(sq[3], sq[0], 1/3)
+        db = vector.mix(sq[3], sq[1], 1/3)
+        dc = vector.mix(sq[3], sq[2], 1/3)
 
         count -= 1
 
-        triangles = []
+        # __pragma__('opov')
+        # average = (sq[0] + sq[1] + sq[2] + sq[3])/[4,4]
+        # __pragma__('noopov')
+
         
-        triangles.append([
-            sq[0],
-            ab,
-            ac,
-        ])
+        # a1 = vector.mix(average, sq[0], 1/3)
+        # b1 = vector.mix(average, sq[1], 1/3)
+        # c1 = vector.mix(average, sq[2], 1/3)
+        # d1 = vector.mix(average, sq[3], 1/3)
+
         
-        shift = Vector2D(1,-1)
-        __pragma__('opov')
-        l = [
-            sq[0] *= shift,
-            ab *= shift,
-            ac *= shift
-            ]
-        __pragma__('noopov')
-        triangles.append(l)
+        divide_square((sq[0], ab, ac, ad,), count)
+        divide_square((ba, sq[1], bc, bd), count)
+        divide_square((ca, cb, sq[2], cd), count)
+        divide_square((da, db, dc, sq[3],), count)
 
-        shift = Vector2D(-1,1)
-        __pragma__('opov')
-        l = [
-            sq[0] *= shift,
-            ab *= shift,
-            ac *= shift
-            ]
-        __pragma__('noopov')
-        triangles.append(l)
-
-        shift = Vector2D(1,-1)
-        __pragma__('opov')
-        l = [
-            sq[0] *= shift,
-            ab *= shift,
-            ac *= shift
-            ]
-        __pragma__('noopov')
-        triangles.append(l)
-        
-        for triangle in triangles:
-            divide_square(triangle, count)
-        # divide_square((corner, ab, ac,), count)
-        # divide_square((corner, ba, bc,), count)
-        # divide_square((sq[2], cb, ca, ), count)
-        # divide_square((sq[3], dc, da, db), count)
-
-        # divide_square((ab, ba, ac, bd), count)
-        # divide_square((bc, cb, bd, ca,), count)
-        # divide_square((cd, dc, ca, db), count)
-        # divide_square((da, ad, db, ac), count)
-
-# def divide_square(sq, count):
-#     global gl
-#     global points
-#     if (count is 0):
-#         sq = [js_array(vec) for vec in sq]
-#         points.push(*sq)
-#         vertices = points
-#         program = select_shaders(gl, "vertex-shader", "fragment-shader2")
-#         render(gl, program, gl.TRIANGLES, vertices)
-
-#     else:
-
-#         ab = mix(sq[0], sq[1], .5)
-#         ac = mix(sq[0], sq[2], .5)
-#         bc = mix(sq[1], sq[2], .5)
-
-#         de = mix(sq[3], sq[4], .5)
-#         df = mix(sq[3], sq[5], .5)
-#         ef = mix(sq[4], sq[5], .5)
-
-#         count -= 1
-
-#         divide_square((sq[2], ac, bc, sq[5], df, ef,), count)
-#         divide_square((sq[0], ab, ac, sq[3], de,df,), count)
-#         divide_square((sq[1], bc, ab, sq[4], de, ef), count)
+        divide_square((ab, ba, bd, ac,), count)
+        divide_square((bd, bc, cb, ca,), count)
+        divide_square((db, ca, cd, dc), count)
+        divide_square((ad, ac, db, da), count)
 
 
-def inv(vec):
-    return [vec[1]*(vec[0]/abs(vec[0])),
-            vec[0]*(vec[1]/abs(vec[1]))]
+
+
+def vec_round(vector, n):
+    __pragma__('opov')
+    vec = [round(i, n) for i in vector]
+    __pragma__('noopov')
+    return vector.__class__(*vec)
+
+
 
 
 def divide_triangle(sq, count):
@@ -267,45 +174,81 @@ def main_draw():
     global points
     gl = init_webgl_inst()
     clear_canvas(gl)
-    shape = make_square(1)
-    shape2 = [
-        Vector2D(0, 1),
-        Vector2D(-1, 0),
-        Vector2D(0, -1),
-        
-        Vector2D(1, 0),
+    shape = make_cube(1)
 
-    ]
-    #shape = __add__(shape, shape2)
-    #shape = shift_shape(shape, Vector2D(-.4, 0))
-    #shape2 = test_func(shape)
-    #shape = [js_array(vec) for vec in shape]
-    shape2 = [js_array(vec) for vec in shape2]
+    count = 4
 
-    # vertices = [js_array(vec) for vec in shape]
-
-    # program = select_shaders(gl, "vertex-shader", "fragment-shader")
-    # render(gl, program, gl.TRIANGLE_FAN, vertices)
-    # for i in range(1):
-    #     shape = test_func(shape)
-
-    # divide_triangle(shape[:3], 2)
-    # divide_triangle(shape[3:], 2)
-    divide_square(shape[:3], 1)
-    #divide_square(shape[3:], 1)
-
-    #divide_square(shape2, 1)
-    # vertices = points
+    divide_square(shape[:4], count)
     vertices = points
-    #vertices = [js_array(vec) for vec in shape2]
 
     program = select_shaders(gl, "vertex-shader", "fragment-shader")
+    colorLoc = gl.getUniformLocation( program, "color" )
+    
+    gl.uniform4fv(colorLoc, flatten(BaseColors[4]))
+    render(gl, program, gl.TRIANGLES, vertices)
+
+    points.length = 0
+    divide_square(shape[4:8], count)
+    vertices = points
+    gl.uniform4fv(colorLoc, flatten(BaseColors[1]))
+    render(gl, program, gl.TRIANGLES, vertices)
+
+    points.length = 0
+    divide_square(shape[8:12], count)
+    vertices = points
+    gl.uniform4fv(colorLoc, flatten(BaseColors[2]))
+    render(gl, program, gl.TRIANGLES, vertices)
+
+    points.length = 0
+    divide_square(shape[12:], count)
+    vertices = points
+    gl.uniform4fv(colorLoc, flatten(BaseColors[3]))
+    render(gl, program, gl.TRIANGLES, vertices)
+
     #render(gl, program, gl.TRIANGLE_STRIP, vertices)
     # render(gl, program, gl.TRIANGLE_FAN, vertices)
     #render(gl, program, gl.TRIANGLES, vertices)
     # render(gl, program, gl.LINE_LOOP, vertices)
-    #render(gl, program, gl.TRIANGLES, vertices)
+    
     # render(gl, program, gl.LINES, vertices)
 
+
+
+def render(gl, program, mode, vertices):
+
+    vPositionLoc = gl.getAttribLocation(program, "vPosition")
+
+    bufferId = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId)
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW)
+
+    gl.enableVertexAttribArray(vPositionLoc)
+
+    gl.vertexAttribPointer(vPositionLoc, 3, gl.FLOAT, False, 0, 0)
+
+    gl.drawArrays(mode, 0, len(vertices))
+
+
+def clear_canvas(gl):
+    gl.js_clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+
+def select_shaders(gl, *args):
+    program = initShaders(gl, *args)
+    gl.useProgram(program)
+    return program
+
+
+def init_webgl_inst():
+    canvas = document.getElementById("gl-canvas")
+    gl = WebGLUtils.setupWebGL(canvas)
+    if not gl:
+        alert("WebGL isn't available")
+
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.clearColor(1.0, 1.0, 1.0, 1.0)
+    gl.enable(gl.DEPTH_TEST)
+
+    return gl
 
 window.onload = main_draw

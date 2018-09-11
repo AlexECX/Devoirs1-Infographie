@@ -12,10 +12,16 @@ def pack_unpack_compat(args, compare):
 def mix(u, v, s ):
     __pragma__('js', '{}', """var t = typeof s""")
     if not t is "number":
-        raise TypeError("mix: the last paramter " + str(s) + " must be a number")
+        __pragma__('js', '{}', """
+        throw "mix: the last paramter " + s + " must be a number";
+        """)
+        
     
     if ( len(u) != len(v) ):
-        raise TypeError("vector dimension mismatch")
+        __pragma__('js', '{}', """
+        throw "vector dimension mismatch";
+        """)
+        
 
     return u * [1-s for i in u] + v * [s for i in v]
 
@@ -45,6 +51,27 @@ class Vector:
     def __len__(self):
         """Add len() functionnality"""
         return len(self.coord)
+
+    def __neg__(self):
+        """Negation operator overload"""
+        result = [-c for c in self.coord]
+        return self.__class__(*result)
+
+    def __eq__(self, vector):
+        """Equality == operator overload"""
+        for i in range(len(self.coord)):
+            if self.coord[i] != vector[i]:
+                return False
+        return True
+
+    def __ne__(self, vector):
+        """Equality != operator overload"""
+        return False if self.__eq__(vector) else True
+
+    def __abs__(self):
+        """Buit in abs() method overload """
+        result = [c/c for c in self.coord]
+        return self.__class__(*result)
 
     def __add__(self, vector):
         """Operator + overload (self + vector case)"""
@@ -98,6 +125,24 @@ class Vector:
         """Operator *= overload"""
         for i in range(len(self.coord)):
             self.coord[i] *= vector[i]
+        return self
+
+    def __truediv__(self, vector):
+        """Operator / overload (self + vector case)"""
+        result = [self.coord[i] / vector[i]
+                  for i in range(len(self.coord))]
+        return self.__class__(*result)
+
+    def __rtruediv__(self, vector):
+        """Operator / overload (vector + self case)"""
+        result = [self.coord[i] / vector[i]
+                  for i in range(len(self.coord))]
+        return self.__class__(*result)
+
+    def __itruediv__(self, vector):
+        """Operator /= overload"""
+        for i in range(len(self.coord)):
+            self.coord[i] /= vector[i]
         return self
 
 
