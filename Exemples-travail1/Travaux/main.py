@@ -2,13 +2,15 @@ from matrice import Matrix
 from vector import Vector2D, Vector3D
 import vector
 import shapes
-import worker
 
 
 gl = None
 program = None
+colorLoc = None
 
 points = []
+worker_count = 0
+worker_points = []
 
 
 BaseColors = [
@@ -22,9 +24,10 @@ BaseColors = [
     vec4(1.0, 1.0, 1.0, 1.0),  # white
 ]
 
-__pragma__('js','{}', """
+__pragma__('js', '{}', """
 function getScriptPath(foo){ return window.URL.createObjectURL(new Blob([foo.toString().match(/^\s*function\s*\(\s*\)\s*\{(([\s\S](?!\}$))*[\s\S])/)[1]],{type:'text/javascript'})); }
 """)
+
 
 def js_array(iterable):
     __pragma__('opov')
@@ -37,8 +40,8 @@ def divide_cube(cube, count):
     divide_square(cube[4:], count)
     divide_square([cube[0], cube[1], cube[5], cube[4], ], count)
     divide_square([cube[2], cube[3], cube[7], cube[6], ], count)
-    divide_square([cube[0], cube[3], cube[7], cube[4],  ],count)
-    divide_square([cube[1], cube[2], cube[6], cube[5],],count)
+    divide_square([cube[0], cube[3], cube[7], cube[4], ], count)
+    divide_square([cube[1], cube[2], cube[6], cube[5], ], count)
 
 
 def divide_square(sq, count):
@@ -121,40 +124,70 @@ def divide_triangle(sq, count):
 def main_draw():
     global gl
     global points
+    global program
     gl = init_webgl_inst()
     clear_canvas(gl)
     shape = shapes.make_cube(.5)
 
-    count = 2
+    count = 4
     shape = shapes.rotate_left(shape)
     shape = shapes.rotate_up(shape)
 
-    divide_cube(shape, count)
+    #divide_cube(shape, count)
 
     program = select_shaders(gl, "vertex-shader", "fragment-shader")
-    colorLoc = gl.getUniformLocation(program, "color")
+    
 
-    # def worker_receive(e):
-    #     vertices = e.data[0]
-    #     color = e.data[1]
-    #     print(vertices)
-    #     # gl.uniform4fv(colorLoc, flatten(BaseColors[i]))
-    #     # render(gl, program, gl.TRIANGLES, vertices)
+    cube = shape
+   
 
-    # worker1 = __new__(Worker('worker.js', __pragma__('js','{}',"""{type:'module'}"""))) 
-    # shape = [js_array(vec) for vec in shape[:4]]
+    cube_faces = [
+        cube[:4],
+        cube[4:],
+        [cube[0], cube[1], cube[5], cube[4], ],
+        [cube[2], cube[3], cube[7], cube[6], ],
+        [cube[0], cube[3], cube[7], cube[4], ],
+        [cube[1], cube[2], cube[6], cube[5], ],
+    ]
 
-    # worker1.onmessage = worker_receive
-    # worker1.postMessage([shape, count, 1])#(cube[:4], count))
+    
+    for face in cube_faces:
+        launch_worker(face, count)
+
+def launch_worker(shape, count):
+        def worker_receive(e):
+            global worker_points
+            global worker_count
+            worker_points.append(e.data[0]) 
+            worker_count += 1
+            if worker_count is 6:
+                worker_render()
+
+        worker1 = __new__(Worker('worker.js'))
+        shape = [js_array(vec) for vec in shape]
+
+        worker1.onmessage = worker_receive
+        worker1.postMessage([shape, count])  # (cube[:4], count))
 
 
+def worker_render():
+    global gl
+    global worker_points
+    global program
     i = 0
-    sides = 6
-    while i < sides:
-        vertices = points[i * len(points)/sides:(i+1)*len(points)/sides]
+    for p in worker_points:
+        colorLoc = gl.getUniformLocation(program, "color")
         gl.uniform4fv(colorLoc, flatten(BaseColors[i]))
-        render(gl, program, gl.TRIANGLES, vertices)
+        render(gl, program, gl.TRIANGLES, p)
         i+=1
+
+    # i = 0
+    # sides = 6
+    # while i < sides:
+    #     vertices = points[i * len(points)/sides:(i+1)*len(points)/sides]
+    #     gl.uniform4fv(colorLoc, flatten(BaseColors[i]))
+    #     render(gl, program, gl.TRIANGLES, vertices)
+    #     i+=1
 
     # vertices = points[len(points)/6:2*len(points)/6]
     # gl.uniform4fv(colorLoc, flatten(BaseColors[1]))
