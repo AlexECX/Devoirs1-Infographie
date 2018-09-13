@@ -1,3 +1,4 @@
+from org.transcrypt import __pragma__ #__: skip
 from py_vector import Vector2D, Vector3D
 import py_vector
 
@@ -42,10 +43,10 @@ def make_triangle(size=.5):
 
 __pragma__('js', '{}', """
 //Recursively divides a triangle in 3 parts, by count times""")
-def divide_triangle(tri, count, points):
+def divide_triangle(tri, count):
     points = []
     if (count is 0):
-        points += tri #__: opov
+        points = points + tri #__: opov
         return points
         
     else:
@@ -62,7 +63,7 @@ def divide_triangle(tri, count, points):
         p_list.append(divide_triangle((tri[1], bc, ab,), count))
 
         for i in p_list:
-            points += i #__: opov
+            points = points + i #__: opov
 
         return points
 
@@ -71,9 +72,9 @@ __pragma__('js', '{}', """
 def divide_square(sq, count):
     points = []
     if (count is 0):
-        points += sq[0:3]  # __: opov
-        points += sq[1:4]  # __: opov
-        points += [sq[2], sq[3], sq[0], ]  # __: opov
+        points = points + sq[0:3]  # __: opov
+        points = points + sq[1:4]  # __: opov
+        points = points + [sq[2], sq[3], sq[0], ]  # __: opov
         return points
        
     else:
@@ -113,7 +114,7 @@ def divide_square(sq, count):
         p_list.append(divide_square((ad, ac, db, da), count))
 
         for i in p_list:
-            points += i #__: opov
+            points = points + i #__: opov
 
         return points
 
@@ -133,9 +134,13 @@ def divide_cube(cube, count):
     p_list.append(divide_square([cube[1], cube[2], cube[6], cube[5], ], count))
 
     for i in p_list:
-            points += i #__: opov
+            points = points + i #__: opov
 
     return points
+
+__pragma__('js', """
+//Experimental functions
+""")
 
 def shift(shape, coord):
 

@@ -1,4 +1,4 @@
-// Transcrypt'ed from Python, 2018-09-13 03:08:25
+// Transcrypt'ed from Python, 2018-09-13 15:55:24
 var py_vector = {};
 import {AssertionError, AttributeError, BaseException, DeprecationWarning, Exception, IndexError, IterableError, KeyError, NotImplementedError, RuntimeWarning, StopIteration, UserWarning, ValueError, Warning, __JsIterator__, __PyIterator__, __Terminal__, __add__, __and__, __call__, __class__, __envir__, __eq__, __floordiv__, __ge__, __get__, __getcm__, __getitem__, __getslice__, __getsm__, __gt__, __i__, __iadd__, __iand__, __idiv__, __ijsmod__, __ilshift__, __imatmul__, __imod__, __imul__, __in__, __init__, __ior__, __ipow__, __irshift__, __isub__, __ixor__, __jsUsePyNext__, __jsmod__, __k__, __kwargtrans__, __le__, __lshift__, __lt__, __matmul__, __mergefields__, __mergekwargtrans__, __mod__, __mul__, __ne__, __neg__, __nest__, __or__, __pow__, __pragma__, __proxy__, __pyUseJsNext__, __rshift__, __setitem__, __setproperty__, __setslice__, __sort__, __specialattrib__, __sub__, __super__, __t__, __terminal__, __truediv__, __withblock__, __xor__, abs, all, any, assert, bool, bytearray, bytes, callable, chr, copy, deepcopy, delattr, dict, dir, divmod, enumerate, filter, float, getattr, hasattr, input, int, isinstance, issubclass, len, list, map, max, min, object, ord, pow, print, property, py_TypeError, py_iter, py_metatype, py_next, py_reversed, py_typeof, range, repr, round, set, setattr, sorted, str, sum, tuple, zip} from './org.transcrypt.__runtime__.js';
 import * as __module_py_vector__ from './py_vector.js';
@@ -31,10 +31,10 @@ export var make_triangle = function (size) {
 };
 
 //Recursively divides a triangle in 3 parts, by count times
-export var divide_triangle = function (tri, count, points) {
+export var divide_triangle = function (tri, count) {
 	var points = list ([]);
 	if (count === 0) {
-		var points = __call__ (__iadd__, null, points, tri);
+		var points = __add__ (points, tri);
 		return points;
 	}
 	else {
@@ -47,7 +47,7 @@ export var divide_triangle = function (tri, count, points) {
 		p_list.append (divide_triangle (tuple ([tri [0], ab, ac]), count));
 		p_list.append (divide_triangle (tuple ([tri [1], bc, ab]), count));
 		for (var i of p_list) {
-			var points = __call__ (__iadd__, null, points, i);
+			var points = __add__ (points, i);
 		}
 		return points;
 	}
@@ -57,9 +57,9 @@ export var divide_triangle = function (tri, count, points) {
 export var divide_square = function (sq, count) {
 	var points = list ([]);
 	if (count === 0) {
-		var points = __call__ (__iadd__, null, points, __getslice__ (sq, 0, 3, 1));
-		var points = __call__ (__iadd__, null, points, __getslice__ (sq, 1, 4, 1));
-		var points = __call__ (__iadd__, null, points, list ([__getitem__ (sq, 2), __getitem__ (sq, 3), __getitem__ (sq, 0)]));
+		var points = __add__ (points, __getslice__ (sq, 0, 3, 1));
+		var points = __add__ (points, __getslice__ (sq, 1, 4, 1));
+		var points = __add__ (points, list ([__getitem__ (sq, 2), __getitem__ (sq, 3), __getitem__ (sq, 0)]));
 		return points;
 	}
 	else {
@@ -86,7 +86,7 @@ export var divide_square = function (sq, count) {
 		p_list.append (divide_square (tuple ([db, ca, cd, dc]), count));
 		p_list.append (divide_square (tuple ([ad, ac, db, da]), count));
 		for (var i of p_list) {
-			var points = __call__ (__iadd__, null, points, i);
+			var points = __add__ (points, i);
 		}
 		return points;
 	}
@@ -105,10 +105,13 @@ export var divide_cube = function (cube, count) {
 	p_list.append (divide_square (list ([cube [0], cube [3], cube [7], cube [4]]), count));
 	p_list.append (divide_square (list ([cube [1], cube [2], cube [6], cube [5]]), count));
 	for (var i of p_list) {
-		var points = __call__ (__iadd__, null, points, i);
+		var points = __add__ (points, i);
 	}
 	return points;
 };
+
+//Experimental functions
+
 export var shift = function (shape, coord) {
 	for (var vec of shape) {
 		var vec = __call__ (__iadd__, null, vec, coord);

@@ -1,16 +1,10 @@
-// Transcrypt'ed from Python, 2018-09-13 03:08:25
+// Transcrypt'ed from Python, 2018-09-13 15:55:25
 import {AssertionError, AttributeError, BaseException, DeprecationWarning, Exception, IndexError, IterableError, KeyError, NotImplementedError, RuntimeWarning, StopIteration, UserWarning, ValueError, Warning, __JsIterator__, __PyIterator__, __Terminal__, __add__, __and__, __call__, __class__, __envir__, __eq__, __floordiv__, __ge__, __get__, __getcm__, __getitem__, __getslice__, __getsm__, __gt__, __i__, __iadd__, __iand__, __idiv__, __ijsmod__, __ilshift__, __imatmul__, __imod__, __imul__, __in__, __init__, __ior__, __ipow__, __irshift__, __isub__, __ixor__, __jsUsePyNext__, __jsmod__, __k__, __kwargtrans__, __le__, __lshift__, __lt__, __matmul__, __mergefields__, __mergekwargtrans__, __mod__, __mul__, __ne__, __neg__, __nest__, __or__, __pow__, __pragma__, __proxy__, __pyUseJsNext__, __rshift__, __setitem__, __setproperty__, __setslice__, __sort__, __specialattrib__, __sub__, __super__, __t__, __terminal__, __truediv__, __withblock__, __xor__, abs, all, any, assert, bool, bytearray, bytes, callable, chr, copy, deepcopy, delattr, dict, dir, divmod, enumerate, filter, float, getattr, hasattr, input, int, isinstance, issubclass, len, list, map, max, min, object, ord, pow, print, property, py_TypeError, py_iter, py_metatype, py_next, py_reversed, py_typeof, range, repr, round, set, setattr, sorted, str, sum, tuple, zip} from './org.transcrypt.__runtime__.js';
 var __name__ = 'py_vector';
-export var pack_unpack_compat = function (args, compare) {
-	if (py_typeof (args [0]).__name__ == compare.__class__.__name__) {
-		return args [0];
-	}
-	else {
-		return args;
-	}
-};
+
+//MV.mix implementation using python operator overload
 export var mix = function (u, v, s) {
-	var t = py_typeof (s);
+	var t = typeof s
 	if (!(t === 'number')) {
 		throw "mix: the last paramter " + s + " must be a number";
 	}
@@ -37,8 +31,8 @@ export var mix = function (u, v, s) {
 };
 
 //Custom made Vector classes translated from python to JS.
-//Mainly used for operator overload functionnality, and to test the 
-//Transcrypt transpiler.
+//Mainly used for operator overload functionnality, and to try the 
+//Transcrypt transpiler functionnalities.
 export var Vector =  __class__ ('Vector', [object], {
 	__module__: __name__,
 	coord: list ([]),
@@ -62,6 +56,15 @@ export var Vector =  __class__ ('Vector', [object], {
 	get __getitem__ () {return __get__ (this, function (self, item) {
 		return self.coord [item];
 	});},
+	get __setitem__ () {return __get__ (this, function (self, key, value) {
+		self.coord [key] = value;
+	});},
+	get __iter__ () {return __get__ (this, function* (self) {
+		for (var item of self.coord) {
+			yield item;
+		}
+		});},
+	[Symbol.iterator] () {return this.__iter__ ()},
 	get __len__ () {return __get__ (this, function (self) {
 		return len (self.coord);
 	});},
@@ -223,11 +226,11 @@ export var Vector =  __class__ ('Vector', [object], {
 	});},
 	get dot_product () {return __getcm__ (this, function (cls, vector1, vector2) {
 		var dot = 0.0;
-		var vec1 = __call__ (cls, null, ...vector1);
-		var vec2 = __call__ (cls, null, ...vector2);
-		__call__ (vec1.normalize, vec1);
-		__call__ (vec2.normalize, vec2);
-		for (var i = 0; i < __call__ (len, null, vec1); i++) {
+		var vec1 = cls (...vector1);
+		var vec2 = cls (...vector2);
+		vec1.normalize ();
+		vec2.normalize ();
+		for (var i = 0; i < len (vec1); i++) {
 			var dot = __call__ (__iadd__, null, dot, __mul__ (__getitem__ (vec1, i), __getitem__ (vec2, i)));
 		}
 		return dot;

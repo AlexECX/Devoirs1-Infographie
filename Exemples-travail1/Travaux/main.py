@@ -3,11 +3,15 @@ from MV import vec4, ortho, flatten  # __: skip
 from javascript import Worker, document, alert   # __: skip
 from WebGL import initShaders, WebGLUtils  # __: skip
 
-import py_vector
+from py_vector import Vector3D
 import shapes
 
 __pragma__('js', """/*
-#comment
+The main module: 
+- Will setup WebGL.
+- Launch JS Workers to recursively divide each faces of an object.
+- The last worker calls a render function. It will render each faces 
+  using the appropriate subset of points/vectors, with different colors. 
 */""")
 
 
@@ -36,37 +40,32 @@ function getScriptPath(foo){ return window.URL.createObjectURL(new Blob([foo.toS
 """)
 
 __pragma__('js', '{}', """
-//Converts an iterable object into a bare js array""")
+//Recursively converts an object implementing __iter__, and all __iter__
+//objects it contains, into bare list objects""")
+def js_list(iterable):
+    if hasattr(iterable, "__iter__"):
+        return [js_list(i) for i in iterable] #__:opov
+    else:
+        return iterable
 
-
-def js_array(iterable):
-    __pragma__('opov')
-    return [item for item in iterable]
-    __pragma__('noopov')
 
 
 __pragma__('js', '{}', """
 //This is the main function""")
-
-
 def main_draw():
     global gl
-    global points
     global program
     gl = init_webgl_inst()
     clear_canvas(gl)
-    shape = shapes.make_square(.5)
+    program = select_shaders(gl, "vertex-shader", "fragment-shader")
 
+    shape = shapes.make_cube(.5)
     count = 4
-    points = shapes.divide_square(shape, count)
-    # shape = shapes.rotate_left(shape)
-    # shape = shapes.rotate_up(shape)
-    vertices = [js_array(vec) for vec in points]
-
-    program = select_shaders(gl, "vertex-shader2", "fragment-shader2")
-
-    render(gl, program, gl.TRIANGLES, vertices)
-    return
+    ## Just some test code
+    # points = shapes.divide_square(shape, count)
+    # vertices = [js_list(vec) for vec in points]
+    # render(gl, program, gl.TRIANGLES, vertices)
+    # return
 
     cube = shape
 
@@ -98,7 +97,7 @@ def launch_worker(shape, count):
             worker_render()
 
     worker1 = __new__(Worker('worker.js'))
-    shape = [js_array(vec) for vec in shape]
+    shape = js_list(shape)
 
     worker1.onmessage = worker_receive
     worker1.postMessage([shape, count])  # (cube[:4], count))

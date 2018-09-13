@@ -1,16 +1,12 @@
 from org.transcrypt import __pragma__ #__: skip
 
 
-def pack_unpack_compat(args, compare):
-    if type(args[0]).__name__ == compare.__class__.__name__:
-        return args[0]
-    else:
-        return args
-
 # __pragma__('opov')
 
+__pragma__('js',"""
+//MV.mix implementation using python operator overload""")
 def mix(u, v, s ):
-    t =  type(s)
+    __pragma__('js', 'var t = typeof s')
     if not t is "number":
         __pragma__('js', '{}', """throw "mix: the last paramter " + s + " must be a number";""")
         
@@ -24,8 +20,8 @@ def mix(u, v, s ):
 
 __pragma__('js', '{}', """
 //Custom made Vector classes translated from python to JS.
-//Mainly used for operator overload functionnality, and to test the 
-//Transcrypt transpiler.""")
+//Mainly used for operator overload functionnality, and to try the 
+//Transcrypt transpiler functionnalities.""")
 class Vector:
 
     coord = []
@@ -44,14 +40,23 @@ class Vector:
 
     def __getitem__(self, item):
         """Add list[] functionnalities"""
-        return self.coord[item]
+        return self.coord[item] 
+
+    def __setitem__(self, key, value):
+        """Add list[key] = value functionnalities"""
+        self.coord[key] = value
+
+    def __iter__(self):
+        """Add iterability"""
+        for item in self.coord:
+            yield item
 
     def __len__(self):
         """Add len() functionnality"""
         return len(self.coord)
 
     def __abs__(self):
-        """Buit in abs() method overload """
+        """Python abs() method overload """
         result = [c/c for c in self.coord]
         return self.__class__(*result)
 
@@ -81,7 +86,7 @@ class Vector:
 
     def __radd__(self, vector):
         """Operator + overload (vector + self case)"""
-        result = [self.coord[i] + vector[i]
+        result = [self.coord[i] + vector[i] 
                   for i in range(len(self.coord))]
         return self.__class__(*result)
 
@@ -167,22 +172,20 @@ class Vector:
         """Return vector coordinates as a list"""
         return self.coord[:]
 
-    # __pragma__('opov')
 
     @classmethod
     def dot_product(cls, vector1, vector2) -> float:
         """Find the dot product of 2 vectors."""
         dot = 0.0
-        vec1 = cls(*vector1)
+        vec1 = cls(*vector1) 
         vec2 = cls(*vector2)
         vec1.normalize()
         vec2.normalize()
         for i in range(len(vec1)):
-            dot += vec1[i] * vec2[i]
+            dot += vec1[i] * vec2[i] #__: opov
 
         return dot
 
-    # __pragma__('noopov')
 
 
 class Vector2D(Vector):
