@@ -1,0 +1,16 @@
+missing module named resource - imported by posix, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named posix - imported by os, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named _posixsubprocess - imported by subprocess, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named readline - imported by cmd, code, pdb, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+excluded module named _frozen_importlib - imported by importlib, importlib.abc, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named _frozen_importlib_external - imported by importlib._bootstrap, importlib, importlib.abc, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named _winreg - imported by platform, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named _scproxy - imported by urllib.request
+missing module named java - imported by platform, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named 'java.lang' - imported by platform, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py, xml.sax._exceptions
+missing module named vms_lib - imported by platform, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named termios - imported by tty, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py, getpass
+missing module named grp - imported by shutil, tarfile, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py
+missing module named 'org.python' - imported by copy, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py, xml.sax
+missing module named pwd - imported by posixpath, shutil, tarfile, http.server, webbrowser, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py, netrc, getpass
+missing module named org - imported by pickle, J:\OneDrive\Documents\GitHub\Devoirs1-Infographie\Exemples-travail1\server.py

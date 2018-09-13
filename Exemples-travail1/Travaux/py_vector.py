@@ -1,5 +1,4 @@
-
-# __pragma__('opov')
+from org.transcrypt import __pragma__ #__: skip
 
 
 def pack_unpack_compat(args, compare):
@@ -8,35 +7,34 @@ def pack_unpack_compat(args, compare):
     else:
         return args
 
+# __pragma__('opov')
 
 def mix(u, v, s ):
-    __pragma__('js', '{}', """var t = typeof s""")
+    t =  type(s)
     if not t is "number":
-        __pragma__('js', '{}', """
-        throw "mix: the last paramter " + s + " must be a number";
-        """)
+        __pragma__('js', '{}', """throw "mix: the last paramter " + s + " must be a number";""")
         
     
     if ( len(u) != len(v) ):
-        __pragma__('js', '{}', """
-        throw "vector dimension mismatch";
-        """)
-        
+        __pragma__('js', '{}', """throw "vector dimension mismatch";""")
 
-    return u * [1-s for i in u] + v * [s for i in v]
+    return u * [1-s for i in u] + v * [s for i in v] 
 
+# __pragma__('noopov')
 
+__pragma__('js', '{}', """
+//Custom made Vector classes translated from python to JS.
+//Mainly used for operator overload functionnality, and to test the 
+//Transcrypt transpiler.""")
 class Vector:
 
     coord = []
     normalized = False
 
-    #__pragma__('iconv')
 
     def __init__(self, *args):
         #args = pack_unpack_compat(args, self)
         self.coord = [float(i) for i in args]
-    #__pragma__('noiconv')
 
     def __str__(self):
         return "{}{}".format(self.__class__.__name__, self.coord)
@@ -52,10 +50,17 @@ class Vector:
         """Add len() functionnality"""
         return len(self.coord)
 
+    def __abs__(self):
+        """Buit in abs() method overload """
+        result = [c/c for c in self.coord]
+        return self.__class__(*result)
+
     def __neg__(self):
         """Negation operator overload"""
         result = [-c for c in self.coord]
         return self.__class__(*result)
+
+    # __pragma__('opov')
 
     def __eq__(self, vector):
         """Equality == operator overload"""
@@ -67,11 +72,6 @@ class Vector:
     def __ne__(self, vector):
         """Equality != operator overload"""
         return False if self.__eq__(vector) else True
-
-    def __abs__(self):
-        """Buit in abs() method overload """
-        result = [c/c for c in self.coord]
-        return self.__class__(*result)
 
     def __add__(self, vector):
         """Operator + overload (self + vector case)"""
@@ -145,6 +145,7 @@ class Vector:
             self.coord[i] /= vector[i]
         return self
 
+    # __pragma__('noopov')
 
     def lenght_vec(self):
         """Return the vector lenght of the vector."""
@@ -162,6 +163,12 @@ class Vector:
                 self.normalized = True
         return self
 
+    def as_list(self):
+        """Return vector coordinates as a list"""
+        return self.coord[:]
+
+    # __pragma__('opov')
+
     @classmethod
     def dot_product(cls, vector1, vector2) -> float:
         """Find the dot product of 2 vectors."""
@@ -175,9 +182,7 @@ class Vector:
 
         return dot
 
-    def as_list(self):
-        """Return vector coordinates as a list"""
-        return self.coord[:]
+    # __pragma__('noopov')
 
 
 class Vector2D(Vector):
@@ -197,6 +202,8 @@ class Vector3D(Vector):
             self.coord.append(0.0)
         self.coord = self.coord[0:3]
 
+    # __pragma__('opov')
+
     def cross_product(self, vec1, vec2):
         """
         Find the cross product of 2 vectors and return the resulting 
@@ -210,5 +217,4 @@ class Vector3D(Vector):
             vector1[0] * vector2[1] - vector1[1] * vector2[0],
         )
 
-
-# __pragma__('noopov')
+    # __pragma__('noopov')

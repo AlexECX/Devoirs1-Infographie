@@ -21,9 +21,8 @@
         {
             "label": "Start python server",
             "type": "shell",
-            "command": "python",
+            "command": "./start_python_server",
             "args": [
-                "server.py"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/Exemples-travail1/"

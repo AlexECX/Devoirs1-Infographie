@@ -25,9 +25,9 @@
             "request": "launch",
             "url": "http://127.0.0.1:8009/Travaux/main.html",
             "webRoot": "${workspaceFolder}/Exemples-travail1/Travaux/main.html",
-            "runtimeArgs": [
-                "--enable-experimental-web-platform-features",
-            ]
+            // "runtimeArgs": [
+            //     "--enable-experimental-web-platform-features",
+            // ]
         },
     ]
 }

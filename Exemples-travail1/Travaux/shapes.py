@@ -1,4 +1,5 @@
-from vector import Vector2D, Vector3D
+from py_vector import Vector2D, Vector3D
+import py_vector
 
 
 def make_square(size=.5):
@@ -39,53 +40,102 @@ def make_triangle(size=.5):
 
     return triangle
 
-def divide_square(sq, count):
-    global points
+__pragma__('js', '{}', """
+//Recursively divides a triangle in 3 parts, by count times""")
+def divide_triangle(tri, count, points):
+    points = []
     if (count is 0):
-        tri = [js_array(vec) for vec in sq]
-        points += tri[0:3]  # __: opov
-        points += tri[1:4]  # __: opov
-        points += [tri[2], tri[3], tri[0], ]  # __: opov
-
-        # vertices = points
-        # program = select_shaders(gl, "vertex-shader", "fragment-shader2")
-        # render(gl, program, gl.TRIANGLES, vertices)
-
+        points += tri #__: opov
+        return points
+        
     else:
-        ab = vector.mix(sq[0], sq[1], 1/3)
-        ac = vector.mix(sq[0], sq[2], 1/3)
-        ad = vector.mix(sq[0], sq[3], 1/3)
-        ba = vector.mix(sq[1], sq[0], 1/3)
-        bc = vector.mix(sq[1], sq[2], 1/3)
-        bd = vector.mix(sq[1], sq[3], 1/3)
-        ca = vector.mix(sq[2], sq[0], 1/3)
-        cb = vector.mix(sq[2], sq[1], 1/3)
-        cd = vector.mix(sq[2], sq[3], 1/3)
-        da = vector.mix(sq[3], sq[0], 1/3)
-        db = vector.mix(sq[3], sq[1], 1/3)
-        dc = vector.mix(sq[3], sq[2], 1/3)
+
+        ab = py_vector.mix(tri[0], tri[1], 1/3)
+        ac = py_vector.mix(tri[0], tri[2], 1/3)
+        bc = py_vector.mix(tri[1], tri[2], 1/3)
 
         count -= 1
+        p_list = []
+
+        p_list.append(divide_triangle((tri[2], ac, bc,), count))
+        p_list.append(divide_triangle((tri[0], ab, ac,), count))
+        p_list.append(divide_triangle((tri[1], bc, ab,), count))
+
+        for i in p_list:
+            points += i #__: opov
+
+        return points
+
+__pragma__('js', '{}', """
+//Recursively divides a square in 8 parts, by count times""")
+def divide_square(sq, count):
+    points = []
+    if (count is 0):
+        points += sq[0:3]  # __: opov
+        points += sq[1:4]  # __: opov
+        points += [sq[2], sq[3], sq[0], ]  # __: opov
+        return points
+       
+    else:
+        ab = py_vector.mix(sq[0], sq[1], 1/3)
+        ac = py_vector.mix(sq[0], sq[2], 1/3)
+        ad = py_vector.mix(sq[0], sq[3], 1/3)
+        ba = py_vector.mix(sq[1], sq[0], 1/3)
+        bc = py_vector.mix(sq[1], sq[2], 1/3)
+        bd = py_vector.mix(sq[1], sq[3], 1/3)
+        ca = py_vector.mix(sq[2], sq[0], 1/3)
+        cb = py_vector.mix(sq[2], sq[1], 1/3)
+        cd = py_vector.mix(sq[2], sq[3], 1/3)
+        da = py_vector.mix(sq[3], sq[0], 1/3)
+        db = py_vector.mix(sq[3], sq[1], 1/3)
+        dc = py_vector.mix(sq[3], sq[2], 1/3)
+
+        count -= 1
+        p_list = []
 
         # __pragma__('opov')
         # average = (sq[0] + sq[1] + sq[2] + sq[3])/[4,4]
         # __pragma__('noopov')
 
-        # a1 = vector.mix(average, sq[0], 1/3)
-        # b1 = vector.mix(average, sq[1], 1/3)
-        # c1 = vector.mix(average, sq[2], 1/3)
-        # d1 = vector.mix(average, sq[3], 1/3)
+        # a1 = py_vector.mix(average, sq[0], 1/3)
+        # b1 = py_vector.mix(average, sq[1], 1/3)
+        # c1 = py_vector.mix(average, sq[2], 1/3)
+        # d1 = py_vector.mix(average, sq[3], 1/3)
 
-        divide_square((sq[0], ab, ac, ad,), count)
-        divide_square((ba, sq[1], bc, bd), count)
-        divide_square((ca, cb, sq[2], cd), count)
-        divide_square((da, db, dc, sq[3],), count)
+        p_list.append(divide_square((sq[0], ab, ac, ad,), count))
+        p_list.append(divide_square((ba, sq[1], bc, bd), count))
+        p_list.append(divide_square((ca, cb, sq[2], cd), count))
+        p_list.append(divide_square((da, db, dc, sq[3],), count))
 
-        divide_square((ab, ba, bd, ac,), count)
-        divide_square((bd, bc, cb, ca,), count)
-        divide_square((db, ca, cd, dc), count)
-        divide_square((ad, ac, db, da), count)
+        p_list.append(divide_square((ab, ba, bd, ac,), count))
+        p_list.append(divide_square((bd, bc, cb, ca,), count))
+        p_list.append(divide_square((db, ca, cd, dc), count))
+        p_list.append(divide_square((ad, ac, db, da), count))
 
+        for i in p_list:
+            points += i #__: opov
+
+        return points
+
+__pragma__('js', '{}', """
+//Recursively divides the six faces of a cube in 8 parts, by count times.
+//This function is depreciated in favor of a multithreaded method 
+//using JS workers.""")
+def divide_cube(cube, count):
+    points = []
+    p_list = []
+    
+    p_list.append(divide_square(cube[:4], count))
+    p_list.append(divide_square(cube[4:], count))
+    p_list.append(divide_square([cube[0], cube[1], cube[5], cube[4], ], count))
+    p_list.append(divide_square([cube[2], cube[3], cube[7], cube[6], ], count))
+    p_list.append(divide_square([cube[0], cube[3], cube[7], cube[4], ], count))
+    p_list.append(divide_square([cube[1], cube[2], cube[6], cube[5], ], count))
+
+    for i in p_list:
+            points += i #__: opov
+
+    return points
 
 def shift(shape, coord):
 
