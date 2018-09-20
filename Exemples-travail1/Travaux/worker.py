@@ -1,3 +1,4 @@
+importScripts('../../Common/MV.js')
 
 def divide_square(sq, count):
     if (count is 0):
@@ -39,7 +40,6 @@ def divide_square(sq, count):
 def worker_func(e):
     __pragma__('js','{}',"""var points = []""")
     # divide_square(e.data)
-    console.log(e.data)
     shape = e.data[0]
     count = e.data[1]
     color = e.data[2]

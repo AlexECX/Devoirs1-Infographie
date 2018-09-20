@@ -1,10 +1,19 @@
-// Transcrypt'ed from Python, 2018-09-13 15:55:24
+// Transcrypt'ed from Python, 2018-09-20 13:33:04
 var py_vector = {};
 import {AssertionError, AttributeError, BaseException, DeprecationWarning, Exception, IndexError, IterableError, KeyError, NotImplementedError, RuntimeWarning, StopIteration, UserWarning, ValueError, Warning, __JsIterator__, __PyIterator__, __Terminal__, __add__, __and__, __call__, __class__, __envir__, __eq__, __floordiv__, __ge__, __get__, __getcm__, __getitem__, __getslice__, __getsm__, __gt__, __i__, __iadd__, __iand__, __idiv__, __ijsmod__, __ilshift__, __imatmul__, __imod__, __imul__, __in__, __init__, __ior__, __ipow__, __irshift__, __isub__, __ixor__, __jsUsePyNext__, __jsmod__, __k__, __kwargtrans__, __le__, __lshift__, __lt__, __matmul__, __mergefields__, __mergekwargtrans__, __mod__, __mul__, __ne__, __neg__, __nest__, __or__, __pow__, __pragma__, __proxy__, __pyUseJsNext__, __rshift__, __setitem__, __setproperty__, __setslice__, __sort__, __specialattrib__, __sub__, __super__, __t__, __terminal__, __truediv__, __withblock__, __xor__, abs, all, any, assert, bool, bytearray, bytes, callable, chr, copy, deepcopy, delattr, dict, dir, divmod, enumerate, filter, float, getattr, hasattr, input, int, isinstance, issubclass, len, list, map, max, min, object, ord, pow, print, property, py_TypeError, py_iter, py_metatype, py_next, py_reversed, py_typeof, range, repr, round, set, setattr, sorted, str, sum, tuple, zip} from './org.transcrypt.__runtime__.js';
 import * as __module_py_vector__ from './py_vector.js';
 __nest__ (py_vector, '', __module_py_vector__);
 import {Vector2D, Vector3D} from './py_vector.js';
 var __name__ = 'shapes';
+
+//make_square is usually prefered.
+export var make_square2D = function (size) {
+	if (typeof size == 'undefined' || (size != null && size.hasOwnProperty ("__kwargtrans__"))) {;
+		var size = 0.5;
+	};
+	var square = list ([Vector2D (-(size), -(size)), Vector2D (size, -(size)), Vector2D (size, size), Vector2D (-(size), size)]);
+	return square;
+};
 export var make_square = function (size) {
 	if (typeof size == 'undefined' || (size != null && size.hasOwnProperty ("__kwargtrans__"))) {;
 		var size = 0.5;
@@ -19,7 +28,8 @@ export var make_cube = function (size, z) {
 	if (typeof z == 'undefined' || (z != null && z.hasOwnProperty ("__kwargtrans__"))) {;
 		var z = 0;
 	};
-	var cube = list ([Vector3D (-(size), size, -(size)), Vector3D (-(size), -(size), -(size)), Vector3D (size, -(size), -(size)), Vector3D (size, size, -(size)), Vector3D (-(size), size, size), Vector3D (-(size), -(size), size), Vector3D (size, -(size), size), Vector3D (size, size, size)]);
+	var base = list ([Vector3D (-(size), size, -(size)), Vector3D (-(size), -(size), -(size)), Vector3D (size, -(size), -(size)), Vector3D (size, size, -(size)), Vector3D (-(size), size, size), Vector3D (-(size), -(size), size), Vector3D (size, -(size), size), Vector3D (size, size, size)]);
+	var cube = list ([base.__getslice__ (0, 4, 1), base.__getslice__ (4, null, 1), list ([base [0], base [1], base [5], base [4]]), list ([base [2], base [3], base [7], base [6]]), list ([base [0], base [3], base [7], base [4]]), list ([base [1], base [2], base [6], base [5]])]);
 	return cube;
 };
 export var make_triangle = function (size) {

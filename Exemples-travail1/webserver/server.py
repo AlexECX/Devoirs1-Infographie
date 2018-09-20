@@ -30,3 +30,4 @@ if __name__ == "__main__":
     except OSError as err:
         if "WinError 10048" in str(err):
             print(str(err))
+            input("Press ENTER to continu...")

@@ -207,14 +207,15 @@ class Vector3D(Vector):
 
     # __pragma__('opov')
 
-    def cross_product(self, vec1, vec2):
+    @classmethod
+    def cross_product(cls, vec1, vec2):
         """
         Find the cross product of 2 vectors and return the resulting 
         vector.
         """
-        vector1 = self.__class__(*vec1)
-        vector2 = self.__class__(*vec2)
-        return self.__class__(
+        vector1 = cls(*vec1)
+        vector2 = cls(*vec2)
+        return cls(
             vector1[1] * vector2[2] - vector1[2] * vector2[1],
             vector1[2] * vector2[0] - vector1[0] * vector2[2],
             vector1[0] * vector2[1] - vector1[1] * vector2[0],

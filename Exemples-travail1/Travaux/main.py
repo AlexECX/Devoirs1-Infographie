@@ -17,9 +17,9 @@ The main module:
 
 gl = None
 program = None
-colorLoc = None
+__pragma__('js','//2D or 3D dimension')
+render_D = None 
 
-points = []
 worker_count = 0
 worker_points = []
 
@@ -36,25 +36,56 @@ BaseColors = [
 ]
 
 __pragma__('js', '{}', """
-function getScriptPath(foo){ return window.URL.createObjectURL(new Blob([foo.toString().match(/^\s*function\s*\(\s*\)\s*\{(([\s\S](?!\}$))*[\s\S])/)[1]],{type:'text/javascript'})); }
-""")
-
-__pragma__('js', '{}', """
-//Recursively converts an object implementing __iter__, and all __iter__
-//objects it contains, into bare list objects""")
-def js_list(iterable):
-    if hasattr(iterable, "__iter__"):
-        return [js_list(i) for i in iterable] #__:opov
-    else:
-        return iterable
-
-
-
-__pragma__('js', '{}', """
-//This is the main function""")
-def main_draw():
+//This is the main 2D function, using a square of 2D vectors""")
+def draw_Sierpinski_Carpet_2D_C():
     global gl
     global program
+    global render_D
+    render_D = 2
+    gl = init_webgl_inst()
+    clear_canvas(gl)
+    program = select_shaders(gl, "vertex-shader2", "fragment-shader")
+
+    shape = shapes.make_square2D(.5)
+    count = 4
+    ## Just some test code
+    # points = shapes.divide_square(shape, count)
+    # vertices = [js_list(vec) for vec in points]
+    # render(gl, program, gl.TRIANGLES, vertices)
+    # return
+
+    launch_worker(shape, count, 1)
+
+
+__pragma__('js', '{}', """
+//This is the main 2D function, using a square of 3D vectors""")
+def draw_Sierpinski_Carpet_2D_D():
+    global gl
+    global program
+    global render_D
+    render_D = 3
+    gl = init_webgl_inst()
+    clear_canvas(gl)
+    program = select_shaders(gl, "vertex-shader2", "fragment-shader")
+
+    shape = shapes.make_square(.5)
+    count = 4
+    ## Just some test code
+    # points = shapes.divide_square(shape, count)
+    # vertices = [js_list(vec) for vec in points]
+    # render(gl, program, gl.TRIANGLES, vertices)
+    # return
+
+    launch_worker(shape, count, 1)
+
+
+__pragma__('js', '{}', """
+//This is the main 3D function""")
+def draw_Sierpinski_Carpet_3D_E():
+    global gl
+    global program
+    global render_D
+    render_D = 3
     gl = init_webgl_inst()
     clear_canvas(gl)
     program = select_shaders(gl, "vertex-shader", "fragment-shader")
@@ -67,19 +98,8 @@ def main_draw():
     # render(gl, program, gl.TRIANGLES, vertices)
     # return
 
-    cube = shape
-
-    cube_faces = [
-        cube[:4],
-        cube[4:],
-        [cube[0], cube[1], cube[5], cube[4], ],
-        [cube[2], cube[3], cube[7], cube[6], ],
-        [cube[0], cube[3], cube[7], cube[4], ],
-        [cube[1], cube[2], cube[6], cube[5], ],
-    ]
-
-    for face in cube_faces:
-        launch_worker(face, count)
+    for face in shape:
+        launch_worker(face, count, 6)
 
 
 __pragma__('js', '{}', """
@@ -87,16 +107,16 @@ __pragma__('js', '{}', """
 //Six workers are used, the last worker calls the render function.""")
 
 
-def launch_worker(shape, count):
+def launch_worker(shape, count, last_worker):
     def worker_receive(e):
         global worker_points
         global worker_count
         worker_points.append(e.data[0])
         worker_count += 1
-        if worker_count is 6:
+        if worker_count is last_worker:
             worker_render()
 
-    worker1 = __new__(Worker('worker.js'))
+    worker1 = __new__(Worker('./__target__/worker.js'))
     shape = js_list(shape)
 
     worker1.onmessage = worker_receive
@@ -104,7 +124,7 @@ def launch_worker(shape, count):
 
 
 __pragma__('js', '{}', """
-//Render function called by the final worker""")
+//Function called by the final worker""")
 
 
 def worker_render():
@@ -136,7 +156,7 @@ __pragma__('js', '{}', """
 
 
 def render(gl, program, mode, vertices):
-
+    global render_D
     vPositionLoc = gl.getAttribLocation(program, "vPosition")
 
     bufferId = gl.createBuffer()
@@ -145,21 +165,27 @@ def render(gl, program, mode, vertices):
 
     gl.enableVertexAttribArray(vPositionLoc)
 
-    gl.vertexAttribPointer(vPositionLoc, 3, gl.FLOAT, False, 0, 0)
+    gl.vertexAttribPointer(vPositionLoc, render_D, gl.FLOAT, False, 0, 0)
 
     gl.drawArrays(mode, 0, len(vertices))
 
 
+__pragma__('js', '{}', """
+//Clears the canva""")
 def clear_canvas(gl):
     gl.js_clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 
+__pragma__('js', '{}', """
+//Get the desired shader and return a program instance""")
 def select_shaders(gl, *args):
     program = initShaders(gl, *args)
     gl.useProgram(program)
     return program
 
 
+__pragma__('js', '{}', """
+//Initialise WebGL""")
 def init_webgl_inst():
     canvas = document.getElementById("gl-canvas")
     gl = WebGLUtils.setupWebGL(canvas)
@@ -171,3 +197,17 @@ def init_webgl_inst():
     gl.enable(gl.DEPTH_TEST)
 
     return gl
+
+
+__pragma__('js', '{}', """
+//Recursively converts an iterable implementing __iter__, and all __iter__
+//objects it contains, into bare list objects""")
+def js_list(iterable):
+    if hasattr(iterable, "__iter__"):
+        return [js_list(i) for i in iterable] #__:opov
+    else:
+        return iterable
+
+__pragma__('js', '{}', """
+//function getScriptPath(foo){ return window.URL.createObjectURL(new Blob([foo.toString().match(/^\s*function\s*\(\s*\)\s*\{(([\s\S](?!\}$))*[\s\S])/)[1]],{type:'text/javascript'})); }
+""")

@@ -2,6 +2,16 @@ from org.transcrypt import __pragma__ #__: skip
 from py_vector import Vector2D, Vector3D
 import py_vector
 
+__pragma__('js',"""
+//make_square is usually prefered.""")
+def make_square2D(size=.5):
+    square = [
+        Vector2D(-size, -size),
+        Vector2D(size, -size),
+        Vector2D(size, size),
+        Vector2D(-size, size),
+    ]
+    return square
 
 def make_square(size=.5):
     square = [
@@ -14,7 +24,7 @@ def make_square(size=.5):
 
 
 def make_cube(size=.5, z=0):
-    cube = [
+    base = [
         Vector3D(-size, size, -size),
         Vector3D(-size, -size, -size),
         Vector3D(size, -size, -size),
@@ -26,6 +36,16 @@ def make_cube(size=.5, z=0):
         Vector3D(size, size, size),
 
     ]
+
+    cube = [
+        base[:4],
+        base[4:],
+        [base[0], base[1], base[5], base[4], ],
+        [base[2], base[3], base[7], base[6], ],
+        [base[0], base[3], base[7], base[4], ],
+        [base[1], base[2], base[6], base[5], ],
+    ]
+
     return cube
 
 

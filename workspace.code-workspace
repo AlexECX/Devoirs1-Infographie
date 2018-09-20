@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "C:\\PythonUtilities"
+		},
+		{
+			"path": "Build"
+		}
+	],
+    "settings": {
+        "files.associations": {
+            "*.py": "python"
+        },
+        "javascript.validate.enable": true
+    }
+}
